@@ -20,3 +20,4 @@ yarn-error.log*
 *.sln
 *.sw*
 vcabb-93eed8f5a141.json
+firebase.js
