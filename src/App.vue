@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="modal">
-      <div class="modal-background" @click="closeModal"></div>
+      <div class="modal-background"></div>
       <div class="modal-card">
         <header class="modal-card-head">
           <p class="modal-card-title">Sorry for your inconvenience</p>
@@ -17,19 +17,24 @@
       </div>
     </div>
     <Navbar/>
-    <section class="section">
-      <router-view/>
-    </section>
+    <div id="main">
+      <section class="section">
+        <router-view/>
+      </section>
+    </div>
+    <Footer/>
   </div>
 </template>
 
 <script>
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 import { setTimeout } from 'timers';
 export default {
   name: 'App',
   components: {
-    Navbar
+    Navbar,
+    Footer
   },
   created () {
     setTimeout(() => {
@@ -45,3 +50,19 @@ export default {
   }
 }
 </script>
+
+<style>
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+#main {
+  flex: 1 0 auto;
+}
+</style>
