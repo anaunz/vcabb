@@ -51,7 +51,7 @@
             </article>
           </div>
           <div class="column is-3">
-            <router-link to="/addsummon" style="text-decoration: none;">
+            <router-link to="/addsummon" style="text-decoration: none;" >
               <article class="message tooltip is-tooltip-multiline"
               data-tooltip="Add a new summon list by entering some information in the following page (This action requires authentication and permission)">
                 <div class="message-header has-background-primary">
@@ -63,7 +63,6 @@
               </article>
             </router-link>
           </div>
-
         </div>
       </div>
   </div>
@@ -71,7 +70,6 @@
 
 <script>
 import firebase from '../firebase'
-import { setTimeout } from 'timers';
 export default {
   name: 'Summon',
   data () {

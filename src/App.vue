@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="modal">
+    <div id="announce" class="modal">
       <div class="modal-background"></div>
       <div class="modal-card">
         <header class="modal-card-head">
@@ -29,7 +29,6 @@
 <script>
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import { setTimeout } from 'timers';
 export default {
   name: 'App',
   components: {
@@ -38,13 +37,13 @@ export default {
   },
   created () {
     setTimeout(() => {
-      document.querySelector('.modal').classList.add('is-active')
+      document.querySelector('#announce').classList.add('is-active')
       document.querySelector('html').classList.add('is-clipped')
     }, 1000)
   },
   methods: {
     closeModal () {
-      document.querySelector('.modal').classList.remove('is-active')
+      document.querySelector('#announce').classList.remove('is-active')
       document.querySelector('html').classList.remove('is-clipped')
     }
   }
@@ -56,7 +55,6 @@ export default {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
   display: flex;
   min-height: 100vh;

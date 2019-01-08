@@ -1,7 +1,5 @@
 <template>
   <div class="container">
-    <div class="is-size-3 has-text-centered">This page is currently renovating. Sorry for your inconvenience.</div>
-    <!--
     <div class="is-size-3 has-text-centered has-text-weight-semibold">Alliance Battle Winrate Calculation</div>
     <div class="is-size-7 has-text-centered">**YOUR CALCULATION WILL BE COLLECTED INTO A DATABASE TO FIND AN AVERAGE PROC IN THE FUTURE**</div>
     <br>
@@ -172,7 +170,7 @@
               <th>Winrate</th>
             </tr>
           </thead>
-          <tbody v-for="rate in winrate" :key="rate">
+          <tbody v-for="(rate, key) in winrate" :key="key">
             <tr>
               <td></td>
               <td>{{rate}}</td>
@@ -180,7 +178,7 @@
           </tbody>
         </table>
       </div>
-    </div> !-->
+    </div>
   </div>
 </template>
 

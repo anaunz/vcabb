@@ -18,5 +18,53 @@
         </router-link>
       </div>
     </div>
+    <Login/>
+    <div class="navbar-end">
+      <a v-if="isLoggedIn" class="navbar-item">{{email}}</a>
+      <div class="navbar-item">
+        <div class="buttons">
+          <a v-if="!isLoggedIn" class="button is-light" @click="loginModal">
+            Login
+          </a>
+          <a v-if="isLoggedIn" class="button is-light" @click="logout">
+            Logout
+          </a>
+        </div>
+      </div>
+    </div>
   </nav>
 </template>
+
+<script>
+import firebase from '../firebase'
+import Login from './Login'
+export default {
+  components: {
+    Login
+  },
+  data () {
+    return {
+      isLoggedIn: false,
+      email: ''
+    }
+  },
+  created () {
+    const user = firebase.auth().currentUser
+    if(user) {
+      this.isLoggedIn = true
+      this.email = user.email
+    }
+  },
+  methods: {
+    logout () {
+      firebase.auth().signOut().then(noData => {
+        this.$router.go()
+      })
+    },
+    loginModal () {
+      Login.methods.toggle()
+    }
+  }
+}
+</script>
+
