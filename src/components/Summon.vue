@@ -6,18 +6,15 @@
       <div class="columns">
         <div class="column is-4">
           <a class="button is-outlined is-fullwidth is-loading" v-if="summonList.length == 0"></a>
-          <a v-for="(summon, key) in summonList" :key="key" class="button is-fullwidth summonList" @click="selectSummon(key, $event)">{{summon.name}}</a>
+          <a v-for="(summon, key) in summonList" :key="key" class="button is-fullwidth summonList" @click="selectSummon(key, $event)">{{summon.data.name}}</a>
         </div>
         <div class="column">
           <div class="notification has-text-centered">
-            <img src="../assets/lr.png">
-            LR Rate: {{(lrrate * 100).toFixed(3)}}%
+            Rate of getting at least 1 <img src="../assets/lr.png" width="25"> : {{(lrrate * 100).toFixed(3)}}%
             <br>
-            <img src="../assets/ur.png">
-            UR Rate: {{(urrate * 100).toFixed(3)}}%
+            Rate of getting at least 1 <img src="../assets/ur.png" width="25"> : {{(urrate * 100).toFixed(3)}}%
             <br>
-            <img src="../assets/sr.png">
-            SR Rate: {{(srrate * 100).toFixed(3)}}%
+            Rate of getting at least 1 <img src="../assets/sr.png" width="25"> : {{(srrate * 100).toFixed(3)}}%
           </div>
           <div class="has-text-centered" v-if="showCards">
             <div class="is-divider" data-content="You've got"></div>
@@ -30,7 +27,7 @@
             </span>
             <div class="is-divider"></div>
           </div>
-          <a class="button is-primary is-fullwidth" @click="summonCards">Summon</a>
+          <a :disabled="loading" class="button is-primary is-fullwidth" @click="summonCards">Summon</a>
         </div>
       </div>
       <div class="is-size-4 has-text-weight-semibold">Summon Rates</div>
@@ -39,15 +36,21 @@
           <div class="column is-3" v-for="(summon, key) in summonList" :key="key">
             <article class="message">
               <div class="message-header has-background-primary">
-                <p>{{summon.name}}</p>
+                <p>{{summon.data.name}}</p>
+                <a v-if="summon.data.deletable && isAdmin">
+                  <i v-if="!loading" class="fas fa-trash-alt" @click="deleteSummon(summon.id)"></i>
+                  <i v-if="loading" class="fas fa-minus"></i>
+                </a>
               </div>
               <div class="message-body has-text-left" style="background-color: white">
-                <p v-if="summon.splr !== undefined">• {{summon.splr.quantity}} Special LRs: {{(summon.splr.rate * 100).toFixed(3)}}%</p>
-                <p>• {{summon.lr.quantity}} LRs: {{(summon.lr.rate * 100).toFixed(3)}}%</p>
-                <p>• {{summon.ur.quantity}} URs: {{(summon.ur.rate * 100).toFixed(3)}}%</p>
-                <p>• {{summon.sr.quantity}} SRs: {{(summon.sr.rate * 100).toFixed(3)}}%</p>
+                <p v-if="summon.data.splr.rate !== ''">• {{summon.data.splr.quantity}} Special LRs: {{(summon.data.splr.rate * 100).toFixed(3)}}%</p>
+                <p>• {{summon.data.lr.quantity}} LRs: {{(summon.data.lr.rate * 100).toFixed(3)}}%</p>
+                <p v-if="summon.data.spur.rate !== ''">• {{summon.data.spur.quantity}} Special URs: {{(summon.data.spur.rate * 100).toFixed(3)}}%</p>
+                <p>• {{summon.data.ur.quantity}} URs: {{(summon.data.ur.rate * 100).toFixed(3)}}%</p>
+                <p v-if="summon.data.spsr.rate !== ''">• {{summon.data.spsr.quantity}} Special SRs: {{(summon.data.spsr.rate * 100).toFixed(3)}}%</p>
+                <p>• {{summon.data.sr.quantity}} SRs: {{(summon.data.sr.rate * 100).toFixed(3)}}%</p>
               </div>
-              <div class="is-size-7 has-text-right"><small>*Last Update: {{timeStampToText(summon.updated._seconds*1000)}}</small></div>
+              <div class="is-size-7 has-text-right"><small>*Last Update: {{timeStampToText(summon.data.updated._seconds*1000)}}</small></div>
             </article>
           </div>
           <div class="column is-3">
@@ -81,17 +84,27 @@ export default {
       summonList: '',
       getCards: '',
       showCards: false,
-      loading: false
+      loading: false,
+      isAdmin: false
     }
   },
   created () {
     document.title = 'Summon Cards Simulation | VBABB'
-    const summon = firebase.functions().httpsCallable('getSummonList')
-    summon().then(result => {
-      this.summonList = result.data
-    })
+    this.render()
   },
   methods: {
+    render () {
+      const summon = firebase.functions().httpsCallable('getSummonList')
+      const auth = firebase.auth().currentUser
+      summon().then(result => {
+        this.summonList = result.data
+        if(auth) if(auth.uid == 'gocGLUUD6oRpAIiHLIpekuTWL1Q2') this.isAdmin = true
+        this.loading = false
+      }).catch(err => {
+        console.log('Error happened when calling getSummonList function: ' + err)
+        this.loading = false
+      })
+    },
     timeStampToText (time) {
       let timeStamp = new Date(time)
       let Month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -105,17 +118,17 @@ export default {
       this.summonSelected = key
       this.getCards = ''
       this.showCards = false
-      const time = this.summonList[key].numberOfSummon
-      const splrRate = (this.summonList[key].splr !== undefined) ? this.summonList[key].splr.rate : 0
-      const splrQuan = (this.summonList[key].splr !== undefined) ? this.summonList[key].splr.quantity : 0
-      const spurRate = (this.summonList[key].spur !== undefined) ? this.summonList[key].spur.rate : 0
-      const spurQuan = (this.summonList[key].spur !== undefined) ? this.summonList[key].spur.quantity : 0
-      const spsrRate = (this.summonList[key].spsr !== undefined) ? this.summonList[key].spsr.rate : 0
-      const spsrQuan = (this.summonList[key].spsr !== undefined) ? this.summonList[key].spsr.quantity : 0
+      const time = this.summonList[key].data.numberOfSummon
+      const splrRate = (this.summonList[key].data.splr !== undefined) ? this.summonList[key].data.splr.rate : 0
+      const splrQuan = (this.summonList[key].data.splr !== undefined) ? this.summonList[key].data.splr.quantity : 0
+      const spurRate = (this.summonList[key].data.spur !== undefined) ? this.summonList[key].data.spur.rate : 0
+      const spurQuan = (this.summonList[key].data.spur !== undefined) ? this.summonList[key].data.spur.quantity : 0
+      const spsrRate = (this.summonList[key].data.spsr !== undefined) ? this.summonList[key].data.spsr.rate : 0
+      const spsrQuan = (this.summonList[key].data.spsr !== undefined) ? this.summonList[key].data.spsr.quantity : 0
       
-      this.lrrate = 1 - Math.pow(Math.pow(1 - this.summonList[key].lr.rate, this.summonList[key].lr.quantity) * Math.pow(1 - splrRate, splrQuan), time)
-      this.urrate = 1 - Math.pow(Math.pow(1 - this.summonList[key].ur.rate, this.summonList[key].ur.quantity) * Math.pow(1 - spurRate, spurQuan), time)
-      this.srrate = 1 - Math.pow(Math.pow(1 - this.summonList[key].sr.rate, this.summonList[key].sr.quantity) * Math.pow(1 - spsrRate, spsrQuan), time)
+      this.lrrate = 1 - Math.pow(Math.pow(1 - this.summonList[key].data.lr.rate, this.summonList[key].data.lr.quantity) * Math.pow(1 - splrRate, splrQuan), time)
+      this.urrate = 1 - Math.pow(Math.pow(1 - this.summonList[key].data.ur.rate, this.summonList[key].data.ur.quantity) * Math.pow(1 - spurRate, spurQuan), time)
+      this.srrate = 1 - Math.pow(Math.pow(1 - this.summonList[key].data.sr.rate, this.summonList[key].data.sr.quantity) * Math.pow(1 - spsrRate, spsrQuan), time)
     },
     summonCards () {
       if(this.loading === true) return false
@@ -126,21 +139,15 @@ export default {
         this.showCards = true
         this.loading = true
         setTimeout(() => {
-          const limit = this.summonList[key].numberOfSummon
-          const splrRate = (this.summonList[key].splr !== undefined) ? this.summonList[key].splr.rate : 0
-          const splrQuan = (this.summonList[key].splr !== undefined) ? this.summonList[key].splr.quantity : 0
-          const spurRate = (this.summonList[key].spur !== undefined) ? this.summonList[key].spur.rate : 0
-          const spurQuan = (this.summonList[key].spur !== undefined) ? this.summonList[key].spur.quantity : 0
-          const spsrRate = (this.summonList[key].spsr !== undefined) ? this.summonList[key].spsr.rate : 0
-          const spsrQuan = (this.summonList[key].spsr !== undefined) ? this.summonList[key].spsr.quantity : 0
-          const getLR = ((this.summonList[key].lr.rate * this.summonList[key].lr.quantity + splrRate * splrQuan) * 100).toFixed(3)
-          const getUR = ((this.summonList[key].ur.rate * this.summonList[key].ur.quantity + spurRate * spurQuan) * 100).toFixed(3)
-          const getSR = ((this.summonList[key].sr.rate * this.summonList[key].sr.quantity + spsrRate * spsrQuan) * 100).toFixed(3)
-
+          const summoning = this.summonList[key].data
+          const limit = summoning.numberOfSummon
+          const getLR = ((summoning.lr.rate * summoning.lr.quantity + summoning.splr.rate * summoning.splr.quantity) * 100).toFixed(3)
+          const getUR = ((summoning.ur.rate * summoning.ur.quantity + summoning.spur.rate * summoning.spur.quantity) * 100).toFixed(3)
+          const getSR = ((summoning.sr.rate * summoning.sr.quantity + summoning.spsr.rate * summoning.spsr.quantity) * 100).toFixed(3)
           let summonedCards = []
 
           for(let i = 0; i < limit; i++){
-            let rand = Math.random() * 100
+            const rand = Math.floor(Math.random() * 101000) / 1000
             let temp = (rand < getLR) ? 'lr' : (rand > getLR && rand < getUR) ? 'ur' : (rand > getUR && rand < getSR) ? 'sr' : 'r';
             summonedCards.push(temp)
           }
@@ -148,6 +155,23 @@ export default {
           this.getCards = summonedCards
         }, 700)
       }
+    },
+    deleteSummon (id) {
+      if(!this.loading){
+        this.loading = true
+        if(confirm('Are you sure to delete this summon?')){
+          const deleteSummon = firebase.functions().httpsCallable('deleteSummonList')
+          deleteSummon({id: id}).then(result => {
+            if(result.data.success) this.render()
+            else{
+              console.log(result.data.msg)
+              this.loading = false
+            }
+          })
+        }
+        else this.loading = false
+      }
+      else alert('Please wait...')
     }
   }
 }

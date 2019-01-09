@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <div v-if="!loginPage" id="login" class="modal">
+  <div>
+    <div id="login" class="modal">
       <div class="modal-background"></div>
       <div class="modal-card">
         <header class="modal-card-head">
@@ -24,16 +24,13 @@
               </span>
             </p>
           </div>
-          <a class="button is-info is-fullwidth" @click="login">Login <i class="fas fa-sign-in-alt"></i></a>or
-          <router-link to="/register" style="text-decoration: none;">
-            <div class="button is-primary is-fullwidth" @click="untoggle">Register <i class="fas fa-user-plus"></i></div>
-          </router-link>
+          <a class="button is-info is-fullwidth" @click="login">Login <i class="fas fa-sign-in-alt"></i></a>
         </section>
       </div>
       <button class="modal-close is-large" aria-label="close" @click="untoggle"></button>
     </div>
-    <div v-if="loginPage">
-      <div class="is-size-4 has-text-w">Login</div>
+    <div v-if="loginPage" class="container">
+      <div class="is-size-4 has-text-weight-semibold has-text-centered">Login</div>
       <div class="column is-6 is-offset-3">
         <div class="field">
           <p class="control has-icons-left has-icons-right">
@@ -51,10 +48,11 @@
             </span>
           </p>
         </div>
-        <a class="button is-info is-fullwidth" @click="login">Login <i class="fas fa-sign-in-alt"></i></a>or
+        <a class="button is-info is-fullwidth" @click="login">Login <i class="fas fa-sign-in-alt"></i></a>
+        <!--
         <router-link to="/register" style="text-decoration: none;">
           <div class="button is-primary is-fullwidth" @click="untoggle">Register <i class="fas fa-user-plus"></i></div>
-        </router-link>
+        </router-link> -->
       </div>
     </div>
   </div>
@@ -92,7 +90,6 @@ export default {
     untoggle () {
       document.querySelector('#login').classList.remove('is-active')
       document.querySelector('html').classList.remove('is-clipped')
-      if(this.loginPage) this.$router.go(-1)
     }
   }
 }

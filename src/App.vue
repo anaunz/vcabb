@@ -15,6 +15,7 @@
           <button class="button is-info" @click="closeModal">OK</button>
         </footer>
       </div>
+      <button class="modal-close is-large" aria-label="close" @click="closeModal"></button>
     </div>
     <Navbar/>
     <div id="main">

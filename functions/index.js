@@ -12,8 +12,9 @@ firestore.settings({
 })
 
 const summonFS = firestore.collection('summon')
+const adminID = 'gocGLUUD6oRpAIiHLIpekuTWL1Q2'
 
-exports.calculation = functions.https.onCall((data, context) => {
+exports.calculation = functions.https.onCall(data => {
   let missnull = 1
   let missrate = 1
   let enemyChance = data.enemyChance || 0.35
@@ -50,13 +51,50 @@ exports.getSummonList = functions.https.onCall(() => {
   return summonFS.orderBy('updated', 'desc').get().then(querySnapShot => {
     let temp = []
     querySnapShot.forEach(doc => {
-      temp.push(doc.data())
+      temp.push({
+        id: doc.id,
+        data: doc.data()
+      })
     })
     return temp
+  }).catch(err => {
+    return {msg: 'Error happened in getSummonList function: ' + err}
   })
 })
 
+exports.addSummonList = functions.https.onCall((data, context) => {
+  if(context.auth != null){
+    return summonFS.add({
+      name: data.name,
+      splr: data.splr,
+      lr: data.lr,
+      spur: data.spur,
+      ur: data.ur,
+      spsr: data.spsr,
+      sr: data.sr,
+      numberOfSummon: data.times,
+      type: data.type,
+      updated: new Date(),
+      addedBy: context.auth.uid,
+      deletable: true
+    }).then(() => {
+      return {success: true}
+    })
+    .catch(err => {
+      return {success: false, msg: 'Error happened in addSummonList function: ' + err}
+    })
+  }
+  else return {success: false, msg: 'No permission'}
+})
 
-
-
+exports.deleteSummonList = functions.https.onCall((data, context) => {
+  if(context.auth.uid == adminID){
+    return summonFS.doc(data.id).delete().then(() => {
+      return {success: true}
+    }).catch(err => {
+      return {success: false, msg: 'Error happened in deleteSummonList function: ' + err}
+    })
+  }
+  else return {success: false, msg: 'No permission'}
+})
 

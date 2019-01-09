@@ -18,7 +18,6 @@
         </router-link>
       </div>
     </div>
-    <Login/>
     <div class="navbar-end">
       <a v-if="isLoggedIn" class="navbar-item">{{email}}</a>
       <div class="navbar-item">
@@ -31,6 +30,7 @@
           </a>
         </div>
       </div>
+      <Login v-if="currentRouteName!=='Login'"/>
     </div>
   </nav>
 </template>
@@ -53,6 +53,11 @@ export default {
     if(user) {
       this.isLoggedIn = true
       this.email = user.email
+    }
+  },
+  computed: {
+    currentRouteName() {
+      return this.$route.name
     }
   },
   methods: {
