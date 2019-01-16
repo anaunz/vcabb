@@ -20,10 +20,13 @@
             <div class="is-divider" data-content="You've got"></div>
             <div v-if="getCards.length===0" class="button is-white is-loading"></div>
             <span v-for="(card, key) in getCards" :key="key">
-              <img v-if="card==='lr'" src="../assets/lr.png">
-              <img v-if="card==='ur'" src="../assets/ur.png">
-              <img v-if="card==='sr'" src="../assets/sr.png">
-              <img v-if="card==='r'" src="../assets/r.png">
+              <span v-if="card==='lr'"><img src="../assets/lr.png"></span>
+              <span class="is-size-7" v-if="card==='splr'">(Special)<img src="../assets/lr.png"></span>
+              <span v-if="card==='ur'"><img src="../assets/ur.png"></span>
+              <span class="is-size-7" v-if="card==='spur'">(Special)<img src="../assets/ur.png"></span>
+              <span v-if="card==='sr'"><img src="../assets/sr.png"></span>
+              <span class="is-size-7" v-if="card==='spsr'">(Special)<img src="../assets/sr.png"></span>
+              <span v-if="card==='r'"><img src="../assets/r.png"></span>
             </span>
             <div class="is-divider"></div>
           </div>
@@ -141,16 +144,17 @@ export default {
         setTimeout(() => {
           const summoning = this.summonList[key].data
           const limit = summoning.numberOfSummon
-          const getLR = Number(((summoning.lr.rate * summoning.lr.quantity + summoning.splr.rate * summoning.splr.quantity) * 100).toFixed(3))
-          const getUR = getLR + Number(((summoning.ur.rate * summoning.ur.quantity + summoning.spur.rate * summoning.spur.quantity) * 100).toFixed(3))
-          const getSR = getUR + Number(((summoning.sr.rate * summoning.sr.quantity + summoning.spsr.rate * summoning.spsr.quantity) * 100).toFixed(3))
+          const getLR = Number(((summoning.lr.rate * summoning.lr.quantity) * 100).toFixed(3))
+          const getSPLR = getLR + Number(((summoning.splr.rate * summoning.splr.quantity) * 100).toFixed(3))
+          const getUR = getSPLR + Number(((summoning.ur.rate * summoning.ur.quantity) * 100).toFixed(3))
+          const getSPUR = getUR + Number(((summoning.spur.rate * summoning.spur.quantity) * 100).toFixed(3))
+          const getSR = getSPUR + Number(((summoning.sr.rate * summoning.sr.quantity) * 100).toFixed(3))
+          const getSPSR = getSR + Number(((summoning.spsr.rate * summoning.spsr.quantity) * 100).toFixed(3))
           let summonedCards = []
-          console.log('start')
 
           for(let i = 0; i < limit; i++){
             const rand = Math.floor(Math.random() * 100000) / 1000
-            let temp = (rand < getLR) ? 'lr' : (rand > getLR && rand < getUR) ? 'ur' : (rand > getUR && rand < getSR) ? 'sr' : 'r'
-            console.log(rand, temp)
+            let temp = (rand <= getLR) ? 'lr' : (rand > getLR && rand <= getSPLR) ? 'splr' : (rand > getSPLR && rand <= getUR) ? 'ur' : (rand > getUR && rand <= getSPUR) ? 'spur' : (rand > getSPUR && rand <= getSR) ? 'sr' : (rand > getSR && rand <= getSPSR) ? 'spsr' : 'r'
             summonedCards.push(temp)
           }
           this.loading = false
