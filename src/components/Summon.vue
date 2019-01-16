@@ -43,11 +43,11 @@
                 </a>
               </div>
               <div class="message-body has-text-left" style="background-color: white">
-                <p v-if="summon.data.splr.rate !== ''">• {{summon.data.splr.quantity}} Special LRs: {{(summon.data.splr.rate * 100).toFixed(3)}}%</p>
-                <p>• {{summon.data.lr.quantity}} LRs: {{(summon.data.lr.rate * 100).toFixed(3)}}%</p>
-                <p v-if="summon.data.spur.rate !== ''">• {{summon.data.spur.quantity}} Special URs: {{(summon.data.spur.rate * 100).toFixed(3)}}%</p>
+                <p v-if="summon.data.splr.rate !== 0">• {{summon.data.splr.quantity}} Special LRs: {{(summon.data.splr.rate * 100).toFixed(3)}}%</p>
+                <p v-if="summon.data.lr.rate !== 0">• {{summon.data.lr.quantity}} LRs: {{(summon.data.lr.rate * 100).toFixed(3)}}%</p>
+                <p v-if="summon.data.spur.rate !== 0">• {{summon.data.spur.quantity}} Special URs: {{(summon.data.spur.rate * 100).toFixed(3)}}%</p>
                 <p>• {{summon.data.ur.quantity}} URs: {{(summon.data.ur.rate * 100).toFixed(3)}}%</p>
-                <p v-if="summon.data.spsr.rate !== ''">• {{summon.data.spsr.quantity}} Special SRs: {{(summon.data.spsr.rate * 100).toFixed(3)}}%</p>
+                <p v-if="summon.data.spsr.rate !== 0">• {{summon.data.spsr.quantity}} Special SRs: {{(summon.data.spsr.rate * 100).toFixed(3)}}%</p>
                 <p>• {{summon.data.sr.quantity}} SRs: {{(summon.data.sr.rate * 100).toFixed(3)}}%</p>
               </div>
               <div class="is-size-7 has-text-right"><small>*Last Update: {{timeStampToText(summon.data.updated._seconds*1000)}}</small></div>
@@ -84,7 +84,7 @@ export default {
       summonList: '',
       getCards: '',
       showCards: false,
-      loading: false,
+      loading: true,
       isAdmin: false
     }
   },
@@ -141,14 +141,16 @@ export default {
         setTimeout(() => {
           const summoning = this.summonList[key].data
           const limit = summoning.numberOfSummon
-          const getLR = ((summoning.lr.rate * summoning.lr.quantity + summoning.splr.rate * summoning.splr.quantity) * 100).toFixed(3)
-          const getUR = ((summoning.ur.rate * summoning.ur.quantity + summoning.spur.rate * summoning.spur.quantity) * 100).toFixed(3)
-          const getSR = ((summoning.sr.rate * summoning.sr.quantity + summoning.spsr.rate * summoning.spsr.quantity) * 100).toFixed(3)
+          const getLR = Number(((summoning.lr.rate * summoning.lr.quantity + summoning.splr.rate * summoning.splr.quantity) * 100).toFixed(3))
+          const getUR = getLR + Number(((summoning.ur.rate * summoning.ur.quantity + summoning.spur.rate * summoning.spur.quantity) * 100).toFixed(3))
+          const getSR = getUR + Number(((summoning.sr.rate * summoning.sr.quantity + summoning.spsr.rate * summoning.spsr.quantity) * 100).toFixed(3))
           let summonedCards = []
+          console.log('start')
 
           for(let i = 0; i < limit; i++){
-            const rand = Math.floor(Math.random() * 101000) / 1000
-            let temp = (rand < getLR) ? 'lr' : (rand > getLR && rand < getUR) ? 'ur' : (rand > getUR && rand < getSR) ? 'sr' : 'r';
+            const rand = Math.floor(Math.random() * 100000) / 1000
+            let temp = (rand < getLR) ? 'lr' : (rand > getLR && rand < getUR) ? 'ur' : (rand > getUR && rand < getSR) ? 'sr' : 'r'
+            console.log(rand, temp)
             summonedCards.push(temp)
           }
           this.loading = false

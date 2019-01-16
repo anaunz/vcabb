@@ -65,6 +65,7 @@
           <td colspan="2">
             <div class="select">
               <select v-model="summon.type" :disabled="loading">
+                <option value="" disabled>Please Select Summon Type</option>
                 <option value="normal">Standard Summon</option>
                 <option value="slot">Slot Summon</option>
                 <option value="chance">Chance Summon</option>
@@ -121,7 +122,7 @@ export default {
           quantity: ''
         },
         times: 10,
-        type: 'normal'
+        type: ''
       },
       loading: false,
       errmsg: ''
@@ -162,8 +163,9 @@ export default {
       if(percentage == 0) this.errmsg += '*Please fill the chance rate\n'
       if(percentage > 100) this.errmsg += '*Please check the rate of each rarity. It currently exceeds 100%\n'
       if(info.times > 15 || info.times < 5) this.errmsg += '*Number of Cards per Summon can be at the maximum of 15 and the minimum of 5\n'
-      if(info.ur.rate == '' && info.ur.quantity == '' ) this.errmsg += '*Please fill the UR rarity information\n'
-      if(info.sr.rate == '' && info.sr.quantity == '' ) this.errmsg += '*Please fill the SR rarity information\n'
+      if(info.ur.rate == '' && info.ur.quantity == '') this.errmsg += '*Please fill UR rarity information\n'
+      if(info.sr.rate == '' && info.sr.quantity == '') this.errmsg += '*Please fill SR rarity information\n'
+      if(info.type == '') this.errmsg += '*Please select Summon\'s type\n'
       for(let key in info){
         if(isObject(info[key])){
           if(info[key].rate != '' && info[key].quantity == '') this.errmsg += '*Please fill the amount of the rarity ' + key.toUpperCase() + '\n'
